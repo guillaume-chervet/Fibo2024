@@ -21,7 +21,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Run Unit test
-      working-directory: ./src/Leonardo.Tests
+      working-directory: ./test/Leonardo.Tests
       run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./coverage/opencover.xml
     - run: dotnet publish ./src/Leonardo.Web/Leonardo.Web.csproj --self-contained true --output ./win-x64/fibonacci -c Release -r win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true /p:PublishReadyToRun=true
     - name: Upload WebApp Build Artifact
