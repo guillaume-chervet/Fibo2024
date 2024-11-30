@@ -10,10 +10,30 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  
+  tags:
     runs-on: ubuntu-latest
-
+    outputs:
+      new_version: ${{ steps.tag.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump version and push tag
+        id: tag_version
+        if: github.ref == 'refs/heads/main'
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN  }}
+      - name: Add tag to output step for main branch
+        id: tag
+        run: |
+          if [ '${{ github.ref }}' = 'refs/heads/main' ]; then
+            echo "new_version=${{ steps.tag_version.outputs.new_version }}" >> $GITHUB_OUTPUT
+          else
+            echo "new_version=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+          fi
+          
+  build:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -29,3 +49,18 @@ jobs:
       with:          
         name: Publish win-x64 Fibonacci
         path: ./win-x64/fibonacci
+
+  build_docker_webapp:
+    needs: []
+    uses: ./.github/workflows/docker.yml
+    with:
+      image_name: "fibonacci"
+      image_version: ${{ needs.tags.outputs.new_version }}
+      image_build_args: ""
+      image_context: .
+      image_file: "./Dockerfile"
+      docker_registry:  "ghcr.io"
+      docker_repository: ${{ github.repository_owner }}
+    secrets:
+      DOCKER_USERNAME: ${{ github.actor }}
+      DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
