@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  packages: write
+  contents: read
+  
 jobs:
   
   tags:
@@ -51,7 +55,7 @@ jobs:
         path: ./win-x64/fibonacci
 
   build_docker_webapp:
-    needs: []
+    needs: [tags]
     uses: ./.github/workflows/docker.yml
     with:
       image_name: "fibonacci"
