@@ -1,6 +1,9 @@
-﻿namespace Leonardo;
+﻿using System.Text.Json.Serialization;
+
+namespace Leonardo;
 
 public record FibonacciResult(int Input, int Result);
+
 
 public static class Fibonacci
 {
